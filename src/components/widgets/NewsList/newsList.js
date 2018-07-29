@@ -5,10 +5,12 @@ import axios from 'axios';
 import { BACKEND_API } from '../../../config';
 import style from './newsList.css';
 import Button from '../Buttons/buttons';
+import CardInfo from '../CardInfo/cardinfo';
 
 class NewsList extends Component {
 
     state={
+        teams:[],
         items:[],
         start: this.props.start,
         end: this.props.end,
@@ -20,6 +22,15 @@ class NewsList extends Component {
     }
 
     request = (start, end) => {
+        if(this.state.teams.length < 1) {
+            axios.get(`${BACKEND_API}/teams`).then(
+                response => {
+                    this.setState({
+                        teams: response.data
+                    })
+                }
+            )
+        }
         axios.get(`${BACKEND_API}/articles?_start=${start}&_end=${end}`).then(
             response => {
                 this.setState({
@@ -33,6 +44,10 @@ class NewsList extends Component {
         let start = this.state.end;
         let end = this.state.end + this.state.amount;
         this.request(start, end);
+        this.setState({
+            start: start,
+            end: end
+        })
     }
 
     renderNews = (type) => {
@@ -53,6 +68,10 @@ class NewsList extends Component {
                             <div>
                                 <div className={style.newslist_item}>
                                     <Link to={`/articles/${item.id}`}>
+                                        <CardInfo 
+                                            allTeams={this.state.teams} 
+                                            teamID={item.team} 
+                                            date={item.date}/>
                                         <h2>{item.title}</h2>
                                     </Link>
                                 </div>
@@ -68,7 +87,6 @@ class NewsList extends Component {
     }
 
     render() {
-        //console.log(this.state.items)
         return (
             <div>
                 <TransitionGroup
