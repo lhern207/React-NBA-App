@@ -15,7 +15,6 @@ const VideosTemplate = (props) => {
                             }}
                         >
                             <div>
-
                             </div>
                         </div>
                         <div className={style.right}>

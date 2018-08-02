@@ -12,7 +12,7 @@ class VideosList extends Component {
         videos: [],
         start: this.props.start,
         end: this.props.end,
-        amount: this.props.amount,
+        amount: this.props.load_amount,
     }
 
     componentWillMount() {
