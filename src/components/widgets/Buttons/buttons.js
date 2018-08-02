@@ -1,5 +1,6 @@
 import React from 'react';
 import style from './buttons.css';
+import { Link } from 'react-router-dom';
 
 const Button = (props) => {
     let template = null;
@@ -13,6 +14,16 @@ const Button = (props) => {
                     {props.cta}
                 </div>
             );
+            break;
+        case('linkTo'):
+            template = (
+                <Link 
+                    to={props.route}
+                    className={style.blue_btn}
+                >
+                    { props.cta }
+                </Link>
+            )
             break;
         default:
             template = null;

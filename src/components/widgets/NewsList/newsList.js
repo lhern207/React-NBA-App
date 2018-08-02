@@ -34,7 +34,9 @@ class NewsList extends Component {
         axios.get(`${BACKEND_API}/articles?_start=${start}&_end=${end}`).then(
             response => {
                 this.setState({
-                    items: [...this.state.items, ...response.data]
+                    items: [...this.state.items, ...response.data],
+                    start,
+                    end
                 })
             }
         )
@@ -44,10 +46,6 @@ class NewsList extends Component {
         let start = this.state.end;
         let end = this.state.end + this.state.amount;
         this.request(start, end);
-        this.setState({
-            start: start,
-            end: end
-        })
     }
 
     renderNews = (type) => {
@@ -71,7 +69,8 @@ class NewsList extends Component {
                                         <CardInfo 
                                             allTeams={this.state.teams} 
                                             teamID={item.team} 
-                                            date={item.date}/>
+                                            date={item.date}
+                                        />
                                         <h2>{item.title}</h2>
                                     </Link>
                                 </div>
