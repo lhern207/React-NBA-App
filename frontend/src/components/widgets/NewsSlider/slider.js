@@ -9,7 +9,7 @@ class NewsSlider extends Component {
         news: []
     }
 
-    componentWillMount() {
+    componentMount() {
         axios.get(`${BACKEND_API}/articles?_start=${this.props.start}&_end=${this.props.end}`).then(
             response => {
                 this.setState({

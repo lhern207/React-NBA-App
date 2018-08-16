@@ -14,7 +14,7 @@ const Home = () => {
                     dots:false
                 }}
             />
-            <NewsList
+            {/* <NewsList
                 type="card"
                 loadmore={true}
                 start={3}
@@ -28,7 +28,7 @@ const Home = () => {
                 start={0}
                 end={3}
                 load_amount={3}
-            />
+            /> */}
         </div>
     );
 };
