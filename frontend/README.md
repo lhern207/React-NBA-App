@@ -1,3 +1,11 @@
+To run the app, on project directory:
+1. npm install
+2. npm install -g json-server - (Rest API/database emulation)
+3. npm run json-server
+4. npm start
+
+For best experience resize to 400x550 using developer tools/toggle device toolbar.
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
