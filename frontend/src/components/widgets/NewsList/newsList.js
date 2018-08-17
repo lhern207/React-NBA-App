@@ -17,7 +17,7 @@ class NewsList extends Component {
         amount: this.props.load_amount,
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.request(this.state.start, this.state.end);
     }
 
@@ -27,9 +27,12 @@ class NewsList extends Component {
                 response => {
                     this.setState({
                         teams: response.data
-                    })
+                    });
                 }
             )
+            .catch(e => {
+                console.log(e);
+            });
         }
         axios.get(`${BACKEND_API}/articles?_start=${start}&_end=${end}`).then(
             response => {
@@ -37,13 +40,16 @@ class NewsList extends Component {
                     items: [...this.state.items, ...response.data],
                     start,
                     end
-                })
+                });
             }
         )
+        .catch(e => {
+            console.log(e);
+        });
     }
 
     loadMore = () => {
-        let start = this.state.end;
+        let start = this.state.start + this.state.amount;
         let end = this.state.end + this.state.amount;
         this.request(start, end);
     }

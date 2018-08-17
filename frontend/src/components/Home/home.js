@@ -14,14 +14,14 @@ const Home = () => {
                     dots:false
                 }}
             />
-            {/* <NewsList
+            <NewsList
                 type="card"
                 loadmore={true}
-                start={3}
+                start={4}
                 end={6}
                 load_amount={3}
             />
-            <VideosList
+            {/* <VideosList
                 type="card"
                 title={true}
                 loadmore={false}
