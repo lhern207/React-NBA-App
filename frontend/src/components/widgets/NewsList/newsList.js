@@ -49,7 +49,7 @@ class NewsList extends Component {
     }
 
     loadMore = () => {
-        let start = this.state.start + this.state.amount;
+        let start = this.state.end + 1;
         let end = this.state.end + this.state.amount;
         this.request(start, end);
     }

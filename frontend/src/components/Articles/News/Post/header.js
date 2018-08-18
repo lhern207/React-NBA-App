@@ -5,7 +5,7 @@ import PostData from '../../Elements/postData';
 const Header = (props) => {
 
     const teamInfo = (team) => {
-        return team ? (
+        return team.stats ? (
             <TeamInfo team={team}/>
         )
         :

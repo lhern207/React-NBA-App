@@ -7,44 +7,55 @@ const {Article} = require('./models/article');
 const {Video} = require('./models/video');
 const {Team} = require('./models/team');
 
+//Importing Middleware
+const {accessControl} = require('./middleware/headers');
+const {determineQuery} = require('./middleware/general');
+
+//Set-up Mongoose
 const dev_db_url = 'mongodb://localhost:27017/nba-app';
+mongoose.Promise = global.Promise;
+
+//Connect to MongoDB database and create Express server instance.
+mongoose.connect(process.env.MONGODB_URI || dev_db_url);
 const app = express();
 
-mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URI || dev_db_url);
-
-//Middleware
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-    next();
-});
+//MIDDLEWARE//
+//Set access control headers
+app.use(accessControl);
+//Determine query type for GET requests
+app.use(determineQuery);
 
 //Routes//
-app.get('/articles', (req, res)=>{
-    if(req.query._start === undefined || req.query._end === undefined){
-        res.status(400).send("Invalid Request Format");
-    }
-    start = parseInt(req.query._start);
-    end = parseInt(req.query._end);
-
-    Article.find({id:{$gte: start, $lte: end}}, (err,articles)=>{
+app.get('/articles', (req,res)=>{
+    req.query_action(Article, (err,result)=>{
         if(err){
-            res.status(404).send("Unable to retrieve articles");
+            res.status(404).send("Unable to retrieve content");
         }
-        res.status(200).send(articles);
+        else{
+            res.status(200).send(result);
+        }
     });
 });
 
 app.get('/videos', (req, res)=>{
-
+    req.query_action(Video, (err,result)=>{
+        if(err){
+            res.status(404).send("Unable to retrieve content");
+        }
+        else{
+            res.status(200).send(result);
+        }
+    });
 });
 
 app.get('/teams', (req,res)=>{
-    Team.find((err,teams)=>{
+    req.query_action(Team, (err,result)=>{
         if(err){
-            res.status(404).send("Unable to retrieve teams");
+            res.status(404).send("Unable to retrieve content");
         }
-        res.status(200).send(teams);
+        else{
+            res.status(200).send(result);
+        }
     });
 });
 

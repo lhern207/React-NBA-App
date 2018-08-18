@@ -21,14 +21,14 @@ const Home = () => {
                 end={6}
                 load_amount={3}
             />
-            {/* <VideosList
+            <VideosList
                 type="card"
                 title={true}
                 loadmore={false}
                 start={0}
                 end={3}
                 load_amount={3}
-            /> */}
+            />
         </div>
     );
 };

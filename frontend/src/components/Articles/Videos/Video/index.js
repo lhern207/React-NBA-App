@@ -8,8 +8,8 @@ import VideosRelated from '../../../widgets/VideosList/VideosRelated/videosRelat
 class VideosArticle extends Component {
 
     state = {
-        article: [],
-        team: [],
+        article: {},
+        team: {},
         teams: [],
         related: []
     }
@@ -17,8 +17,7 @@ class VideosArticle extends Component {
     componentWillMount() {
         axios.get(`${BACKEND_API}/videos?id=${this.props.match.params.id}`).then(
             response => {
-                let article = response.data[0];
-
+                const article = response.data;
                 axios.get(`${BACKEND_API}/teams?id=${article.team}`).then(
                     response => {
                         this.setState({
@@ -28,33 +27,41 @@ class VideosArticle extends Component {
                         this.getRelated();
                     }
                 )
+                .catch(e=>{
+                    console.log(e);
+                });
             }
         )
+        .catch(e=>{
+            console.log(e);
+        });
     }
 
     getRelated = () => {
         axios.get(`${BACKEND_API}/teams`).then(
             response => {
                 let teams = response.data;
-                axios.get(`${BACKEND_API}/videos?q=${this.state.team[0].city}&_limit=3`)
+                axios.get(`${BACKEND_API}/videos?tag=${this.state.team.city}&_limit=3`)
                 .then(response => {
                     this.setState({
                         teams,
                         related: response.data
-                    })
+                    });
                 })
             }
         )
+        .catch(e=>{
+            console.log(e);
+        });
     }
 
     render() {
-
         const article = this.state.article;
         const team = this.state.team;
 
         return (
             <div>
-                <Header teamData={team[0]}/>
+                <Header teamData={team}/>
                 <div className={style.videoWrapper}>
                     <h1>{article.title}</h1>
                     <iframe

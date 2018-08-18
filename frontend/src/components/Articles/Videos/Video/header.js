@@ -4,7 +4,7 @@ import TeamInfo from '../../Elements/teamInfo';
 const Header = (props) => {
 
     const teamInfo = (team) => {
-        return team ? (
+        return team.stats ? (
             <TeamInfo team={team}/>
         )
         :

@@ -15,7 +15,7 @@ class VideosList extends Component {
         amount: this.props.load_amount,
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.request(this.state.start, this.state.end);
     }
 
@@ -28,6 +28,9 @@ class VideosList extends Component {
                     })
                 }
             )
+            .catch(e=>{
+                console.log(e);
+            });
         }
         axios.get(`${BACKEND_API}/videos?_start=${start}&_end=${end}`).then(
             response => {
@@ -35,13 +38,16 @@ class VideosList extends Component {
                     videos: [...this.state.videos, ...response.data],
                     start,
                     end
-                })
+                });
             }
         )
+        .catch(e=>{
+            console.log(e);
+        });
     }
 
     loadMore = () => {
-        let start = this.state.end;
+        let start = this.state.end + 1;
         let end = this.state.end + this.state.amount;
         this.request(start, end);
     }

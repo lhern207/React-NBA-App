@@ -7,26 +7,30 @@ import Header from './header';
 class NewsArticles extends Component {
 
     state = {
-        article: [],
-        team: []
+        article: {},
+        team: {}
     }
 
-    componentWillMount() {
+    componentDidMount(){
         axios.get(`${BACKEND_API}/articles?id=${this.props.match.params.id}`).then(
             response => {
-                let article = response.data[0];
-
+                const article = response.data;
                 axios.get(`${BACKEND_API}/teams?id=${article.team}`).then(
                     response => {
                         this.setState({
                             article,
                             team: response.data
-                        })
-
+                        });
                     }
                 )
+                .catch(e=>{
+                    console.log(e);
+                });
             }
         )
+        .catch(e=>{
+            console.log(e);
+        });
     }
 
     render() {
@@ -37,7 +41,7 @@ class NewsArticles extends Component {
         return (
             <div className = {style.articleWrapper}>
                 <Header
-                    teamData={team[0]}
+                    teamData={team}
                     date={article.date}
                     author={article.author}
                 />
@@ -55,7 +59,7 @@ class NewsArticles extends Component {
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
