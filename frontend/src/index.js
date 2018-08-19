@@ -3,12 +3,17 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import Routes from './routes';
 
-const App = () => {
+let user = {
+    email: '',
+    loggedOn: false
+}
+
+const App = (props) => {
     return (
         <BrowserRouter>
-            <Routes/>
+            <Routes {...props}/>
         </BrowserRouter>
     )
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App user={user}/>, document.getElementById('root'));

@@ -1,7 +1,20 @@
 import React from 'react';
-import styles from './formFields.css';
+import style from './formFields.css';
 
 const FormFields = ({formData, change, id}) => {
+
+    const showError = () => {
+        let errorMessage = null;
+
+        if(formData.validation && !formData.valid){
+            errorMessage = (
+                <div className={style.labelError}>
+                    {formData.validationMessage}
+                </div>
+            )
+        }
+        return errorMessage;
+    };
 
     const renderTemplate = () => {
         let formTemplate = null;
@@ -10,7 +23,13 @@ const FormFields = ({formData, change, id}) => {
             case('input'):
                 formTemplate = (
                     <div>
-                        input
+                        <input
+                            {...formData.config}
+                            value={formData.value}
+                            onBlur = {(event) => change({event, id, blur:true})}
+                            onChange = {(event) => change({event, id, blur:false})}
+                        />
+                        {showError()}
                     </div>
                 )
                 break;

@@ -6,8 +6,11 @@ const mongoose = require('mongoose');
 const {Article} = require('./models/article');
 const {Video} = require('./models/video');
 const {Team} = require('./models/team');
+const {User} = require('./models/user');
 
 //Importing Middleware
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const {accessControl} = require('./middleware/headers');
 const {determineQuery} = require('./middleware/general');
 
@@ -24,6 +27,10 @@ const app = express();
 app.use(accessControl);
 //Determine query type for GET requests
 app.use(determineQuery);
+//Parse JSON body fields
+app.use(bodyParser.json());
+//Parse cookie fields
+app.use(cookieParser());
 
 //Routes//
 app.get('/articles', (req,res)=>{
@@ -57,6 +64,70 @@ app.get('/teams', (req,res)=>{
             res.status(200).send(result);
         }
     });
+});
+
+app.post('/user/login', (req,res)=>{
+    User.findOne({'email':req.body.email}, (err,user)=>{
+        if(err){
+            res.status(400).send(err);
+        }
+        else if(!user){
+            res.status(400).send('Authentication failed, user not found');
+        }
+        else{
+            user.comparePassword(req.body.password, (err,isMatch)=>{
+                if(err) {
+                    throw err;
+                }
+                else if(!isMatch){
+                    res.status(400).send("Wrong password");
+                }
+                else{
+                    user.generateToken((err, user)=>{
+                        if(err){
+                            res.status(400).send(err);
+                        }
+                        else{
+                            res.cookie('auth', user.token).send('ok');
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+app.post('/user/register', (req,res)=> {
+    User.findOne({'email':req.body.email}, (err,user)=>{
+        if(err){
+            res.status(400).send(err);
+        }
+        else if(user){
+            res.status(400).send('An account with that email already exists');
+        }
+        else{
+            const user = new User(
+                {
+                    email: req.body.email,
+                    password: req.body.password
+                }
+            );
+
+            //Generate token already saves the user. No need to do it again here.
+            user.generateToken((err, user)=>{
+                if(err){
+                    res.status(400).send(err);
+                }
+                else{
+                    res.cookie('auth', user.token).send('ok');
+                }
+            });
+        }
+    });
+});
+
+app.delete('/user/logout', (req,res)=> {
+
 });
 
 //Server listen
