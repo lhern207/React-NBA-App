@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt =  require('jsonwebtoken');
-const {SALT_I} = require('../config');
-const {SUPER_SECRET} = require('../config');
+//const {SALT_I} = require('../config');
+//const {SUPER_SECRET} = require('../config');
 
 const userSchema = mongoose.Schema({
     //Missing email format check server side. Must be implemented
@@ -26,7 +26,8 @@ const userSchema = mongoose.Schema({
 userSchema.pre('save', function(next){
     var user = this;
     if(user.isModified('password')){
-        bcrypt.genSalt(SALT_I, function(err,salt){
+        const int_salt = parseInt(process.env.SALT_I);
+        bcrypt.genSalt(int_salt, function(err,salt){
             if(err){
                 return next(err);
             }
@@ -57,8 +58,7 @@ userSchema.methods.comparePassword = function(candidatePassword, cb){
 //
 userSchema.methods.generateToken = function(cb){
     var user = this;
-    var token = jwt.sign(user._id.toHexString(), SUPER_SECRET);
-
+    var token = jwt.sign(user._id.toHexString(), process.env.SUPER_SECRET);
     user.token = token;
     user.save(function(err,user){
         if(err) {
@@ -74,7 +74,7 @@ userSchema.statics.findByToken = function(token, cb){
     //This 'User' is not an instance of the schema. But rather, the schema model itself.
     //That's why we define findByToken inside statics.
     const User = this;
-    jwt.verify(token, SUPER_SECRET, function(err, decoded){
+    jwt.verify(token, process.env.SUPER_SECRET, function(err, decoded){
         if(err) return cb(err);
         User.findOne({_id:decoded, token:token}, function(err,user){
             //This 'user' is a document instance returned by findOne()

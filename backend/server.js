@@ -109,10 +109,10 @@ app.post('/user/register', (req,res)=> {
             const user = new User(
                 {
                     email: req.body.email,
-                    password: req.body.password
+                    password: req.body.password,
+                    token: ''
                 }
             );
-
             //Generate token already saves the user. No need to do it again here.
             user.generateToken((err, user)=>{
                 if(err){

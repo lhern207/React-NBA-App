@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 
 import Home from './components/Home/home';
 import Layout from './hoc/Layout/layout';
@@ -8,6 +8,22 @@ import VideosArticle from './components/Articles/Videos/Video/index';
 import News from './components/News/news';
 import Videos from './components/Videos/videos';
 import SignIn from './components/SignIn/signin';
+
+const PrivateRoute = ({
+    component: Comp,
+    ...rest
+}) => {
+    return (
+        <Route {...rest} component={(props)=>{
+            return (
+                sessionStorage.getItem('loggedIn') === 'true' ? 
+                <Redirect to="/"/>
+            :
+                <Comp {...props}/>
+            )
+        }}/>
+    )
+};
 
 class Routes extends Component {
     render() {
@@ -19,7 +35,7 @@ class Routes extends Component {
                     <Route path="/articles/:id" exact component={NewsArticle}/>
                     <Route path="/videos/:id" exact component={VideosArticle}/>
                     <Route path="/videos" exact component={Videos}/>
-                    <Route path="/sign-in" exact component={SignIn}/>
+                    <PrivateRoute path="/sign-in" exact component={SignIn} />
                 </Switch>
             </Layout>
         );

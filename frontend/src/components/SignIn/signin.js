@@ -5,7 +5,6 @@ import axios from 'axios';
 import {BACKEND_API} from '../../config';
 
 class SignIn extends Component {
-
     state = {
         registerError:'',
         loading: false,
@@ -114,8 +113,10 @@ class SignIn extends Component {
 
                 if(type) {
                     //Login Request
-                    axios.post(`${BACKEND_API}/user/login`, dataToSubmit)
+                    axios.post(`${BACKEND_API}/user/login`, dataToSubmit, {withCredentials: true})
                     .then(response => {
+                        sessionStorage.setItem("email", `${dataToSubmit.email}`);
+                        sessionStorage.setItem("loggedIn", "true");
                         this.props.history.push('/');
                     })
                     .catch(e => {
@@ -127,8 +128,10 @@ class SignIn extends Component {
                 } 
                 else{
                     //Register Request
-                    axios.post(`${BACKEND_API}/user/register`, dataToSubmit)
+                    axios.post(`${BACKEND_API}/user/register`, dataToSubmit, {withCredentials: true})
                     .then(response => {
+                        sessionStorage.setItem("email", `${dataToSubmit.email}`);
+                        sessionStorage.setItem("loggedIn", "true");
                         this.props.history.push('/');
                     })
                     .catch(e => {
@@ -184,7 +187,7 @@ class SignIn extends Component {
                     { this.showError() }
                 </form>
             </div>
-        );
+        )
     }
 }
 
