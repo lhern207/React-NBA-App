@@ -126,8 +126,20 @@ app.post('/user/register', (req,res)=> {
     });
 });
 
-app.delete('/user/logout', (req,res)=> {
-
+app.post('/user/logout', (req,res)=> {
+    let token = req.cookies.auth;
+    User.findByToken(token, (err, user)=>{
+        if(err || !user){
+            console.log("Logout - Token for deletion not found");
+        }
+        else{
+            user.token = '';
+            user.save((err,user)=>{
+                if(err) console.log("Logout - Token could not be deleted from database");
+            });
+        }
+    });
+    res.clearCookie('auth').send('ok');
 });
 
 //Server listen
