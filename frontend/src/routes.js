@@ -8,6 +8,7 @@ import VideosArticle from './components/Articles/Videos/Video/index';
 import News from './components/News/news';
 import Videos from './components/Videos/videos';
 import SignIn from './components/SignIn/signin';
+import Dashboard from './components/Dashboard/dashboard';
 
 const PrivateRoute = ({
     component: Comp,
@@ -36,6 +37,7 @@ class Routes extends Component {
                     <Route path="/videos/:id" exact component={VideosArticle}/>
                     <Route path="/videos" exact component={Videos}/>
                     <PrivateRoute path="/sign-in" exact component={SignIn} />
+                    <Route path="/dashboard" exact component={Dashboard}/>
                 </Switch>
             </Layout>
         );
