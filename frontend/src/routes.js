@@ -9,8 +9,10 @@ import News from './components/News/news';
 import Videos from './components/Videos/videos';
 import SignIn from './components/SignIn/signin';
 import Dashboard from './components/Dashboard/dashboard';
+import axios from 'axios';
+import {BACKEND_API} from './config';
 
-const PrivateRoute = ({
+const RestrictedRoute = ({
     component: Comp,
     ...rest
 }) => {
@@ -19,10 +21,41 @@ const PrivateRoute = ({
             return (
                 sessionStorage.getItem('loggedIn') === 'true' ? 
                 <Redirect to="/"/>
-            :
+                :
                 <Comp {...props}/>
             )
         }}/>
+    )
+};
+
+const PrivateRoute = ({
+    component: Comp,
+    ...rest
+}) => {
+    return (
+        <Route {...rest} component={(props)=>{
+            axios.post(`${BACKEND_API}/dashboard`, {}, {withCredentials: true})
+            .then(response => {
+                if(sessionStorage.getItem('loggedIn') === 'true'){
+                    return (
+                        <Comp {...props}/>
+                    )
+                }
+                else{
+                    return (
+                        <Redirect to="/sign-in"/>
+                    )
+                }
+            })
+            .catch(e=>{
+                //sessionStorage.removeItem('loggedIn');
+                //sessionStorage.removeItem('email');
+                return (
+                    <Redirect to="/sign-in"/>
+                )
+            });
+        }}
+        />
     )
 };
 
@@ -36,11 +69,11 @@ class Routes extends Component {
                     <Route path="/articles/:id" exact component={NewsArticle}/>
                     <Route path="/videos/:id" exact component={VideosArticle}/>
                     <Route path="/videos" exact component={Videos}/>
-                    <PrivateRoute path="/sign-in" exact component={SignIn} />
+                    <RestrictedRoute path="/sign-in" exact component={SignIn}/>
                     <Route path="/dashboard" exact component={Dashboard}/>
                 </Switch>
             </Layout>
-        );
+        )
     }
 }
 

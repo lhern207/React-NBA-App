@@ -7,12 +7,14 @@ const {Article} = require('./models/article');
 const {Video} = require('./models/video');
 const {Team} = require('./models/team');
 const {User} = require('./models/user');
+const {Image} = require('./models/image');
 
 //Importing Middleware
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const {accessControl} = require('./middleware/headers');
 const {determineQuery} = require('./middleware/general');
+const {auth} = require('./middleware/auth');
 
 //Set-up Mongoose
 const dev_db_url = 'mongodb://localhost:27017/nba-app';
@@ -28,7 +30,7 @@ app.use(accessControl);
 //Determine query type for GET requests
 app.use(determineQuery);
 //Parse JSON body fields
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '10mb'}));
 //Parse cookie fields
 app.use(cookieParser());
 
@@ -41,6 +43,66 @@ app.get('/articles', (req,res)=>{
         else{
             res.status(200).send(result);
         }
+    });
+});
+
+//Needs Auth
+app.post('/articles', (req,res)=>{
+    Article.findByMaxId((err,article)=>{
+        if(err) return res.status(400).send(err);
+
+        //This should be middleware
+        var date = new Date();
+        var day = date.getDate();
+        var month = date.getMonth()+1;
+        var year = date.getFullYear();
+        currentDate = month + '/' + day + '/' + year;
+        newID = article.id + 1;
+
+        const newArticle = new Article(
+            {
+                id: newID,
+                team: req.body.team,
+                title: req.body.title,
+                image: req.body.image,
+                body: req.body.body,
+                date: currentDate,
+                author: req.body.author,
+                tags: []
+            }
+        );
+        console.log(newArticle);
+        newArticle.save((err,article)=>{
+            console.log(err,article);
+            if(err) return res.status(400).send(err);
+            res.status(200).send({"article":newID});
+        });
+    })
+});
+
+//Needs Auth
+app.post('/dashboard', (req,res)=>{
+    res.status(200).send('ok');
+});
+
+app.get('/images', (req, res)=>{
+    Image.findById(req.query.id, (err, image)=>{
+        if(err) return res.status(400).send(err);
+        res.status(200).send({"image": image.source});
+    });
+});
+
+//Needs Auth
+app.post('/images', (req, res)=>{
+    imageSource = req.body.image;
+    const newImage = new Image(
+        {
+            source : imageSource
+        }
+    );
+    newImage.save((err,image)=>{
+        if(err) return res.status(400).send(err);
+        res.status(200).send({"image": image.source});
     });
 });
 
@@ -106,7 +168,7 @@ app.post('/user/register', (req,res)=> {
             res.status(400).send('An account with that email already exists');
         }
         else{
-            const user = new User(
+            const newUser = new User(
                 {
                     email: req.body.email,
                     password: req.body.password,
@@ -114,7 +176,7 @@ app.post('/user/register', (req,res)=> {
                 }
             );
             //Generate token already saves the user. No need to do it again here.
-            user.generateToken((err, user)=>{
+            newUser.generateToken((err, user)=>{
                 if(err){
                     res.status(400).send(err);
                 }

@@ -36,6 +36,19 @@ const articleSchema = mongoose.Schema({
     }
 });
 
+articleSchema.statics.findByMaxId = function(cb){
+    const Article = this;
+    Article.findOne({}).sort({'id':-1}).limit(1).exec((err,article)=>{
+        if(err){
+            return cb(err);
+        }
+        if(!article){
+            return cb(null, {id:0})
+        }
+        cb(null, article);
+    })
+};
+
 const Article = mongoose.model('Article', articleSchema);
 
 module.exports = {Article};

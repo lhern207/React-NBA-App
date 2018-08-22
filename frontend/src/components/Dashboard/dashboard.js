@@ -50,11 +50,11 @@ class Dashboard extends Component {
                 value: '',
                 valid: true
             },
-            teams: {
+            team: {
                 element: 'select',
                 value: '',
                 config : {
-                    name: 'teams_input',
+                    name: 'team_input',
                     options: []
                 },
                 validation: {
@@ -63,6 +63,10 @@ class Dashboard extends Component {
                 valid: false,
                 touched: false,
                 validationMessage: ''
+            },
+            image: {
+                value: '',
+                valid: true
             }
         }
     }
@@ -79,7 +83,7 @@ class Dashboard extends Component {
                 });
             });
             const newFormData = {...this.state.formdata};
-            newFormData['teams'].config.options = teams;
+            newFormData['team'].config.options = teams;
             this.setState({
                 formdata: newFormData
             });
@@ -161,11 +165,41 @@ class Dashboard extends Component {
         console.log(dataToSubmit);
 
         if(formIsValid){
-            console.log('SUBMIT POST')
+            this.setState({
+                loading: true,
+                postError: ''
+            });
+
+            axios.post(`${BACKEND_API}/images`, {"image":dataToSubmit.image}, {withCredentials: true})
+            .then(response => {
+                dataToSubmit.image = response.data.image;
+
+                axios.post(`${BACKEND_API}/articles`, dataToSubmit, {withCredentials: true})
+                .then(response => {
+                    this.setState({
+                        loading: false,
+                        postError: ''
+                    });
+                    //Redirect to article
+                    this.props.history.push(`/articles/${response.data.article}`);
+                })
+                .catch(e=>{
+                    this.setState({
+                        loading: false,
+                        postError: 'Article failed to upload to server'
+                    });
+                });
+            })
+            .catch(e=>{
+                this.setState({
+                    loading: false,
+                    postError: 'Image failed to upload to server'
+                });
+            });
         }
         else{
             this.setState({
-                loading: true,
+                loading: false,
                 postError: 'Something went wrong'
             });
         }
@@ -198,12 +232,17 @@ class Dashboard extends Component {
         });
     }
 
+    previewImage = (image) => {
+        this.updateForm({id:'image'}, image);
+    }
+
     render() {
         return (
             <div className = {style.postContainer}>
                 <form onSubmit={this.submitForm}>
                     <h2>Add Post</h2>
-                    <Uploader/>
+                    <Uploader onLoad={(image) => this.previewImage(image)}/>
+                    <img src={this.state.formdata.image.value} height="80" alt=""/>
                     <FormField
                         id={'author'}
                         formData={this.state.formdata.author}
@@ -216,13 +255,20 @@ class Dashboard extends Component {
                     />
                     <Editor
                         editorState = {this.state.editorState}
+                        toolbar= {{
+                            options: ['inline', 'fontSize', 'fontFamily', 
+                            'list', 'textAlign', 'colorPicker' ],
+                            inline: { inDropdown: true },
+                            list: { inDropdown: true },
+                            textAlign: { inDropdown: true },
+                        }}
                         wrapperClassName = "myEditor_wrapper"
                         editorClassName = "myEditor_editor"
                         onEditorStateChange = {this.onEditorStateChange}
                     />
                     <FormField
-                        id={'teams'}
-                        formData={this.state.formdata.teams}
+                        id={'team'}
+                        formData={this.state.formdata.team}
                         change={(element)=>this.updateForm(element)}
                     />
                     { this.submitButton() }
