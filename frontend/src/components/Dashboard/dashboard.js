@@ -170,30 +170,19 @@ class Dashboard extends Component {
                 postError: ''
             });
 
-            axios.post(`${BACKEND_API}/images`, {"image":dataToSubmit.image}, {withCredentials: true})
+            axios.post(`${BACKEND_API}/articles`, dataToSubmit, {withCredentials: true})
             .then(response => {
-                dataToSubmit.image = response.data.image;
-
-                axios.post(`${BACKEND_API}/articles`, dataToSubmit, {withCredentials: true})
-                .then(response => {
-                    this.setState({
-                        loading: false,
-                        postError: ''
-                    });
-                    //Redirect to article
-                    this.props.history.push(`/articles/${response.data.article}`);
-                })
-                .catch(e=>{
-                    this.setState({
-                        loading: false,
-                        postError: 'Article failed to upload to server'
-                    });
+                this.setState({
+                    loading: false,
+                    postError: ''
                 });
+                //Redirect to article
+                this.props.history.push(`/articles/${response.data.article}`);
             })
             .catch(e=>{
                 this.setState({
                     loading: false,
-                    postError: 'Image failed to upload to server'
+                    postError: 'Article failed to upload to server'
                 });
             });
         }
@@ -217,10 +206,10 @@ class Dashboard extends Component {
 
     onEditorStateChange = (editorState) => {
         let contentState = editorState.getCurrentContent();
-        let rawState = convertToRaw(contentState);
+        //let rawState = convertToRaw(contentState);
         //=Store raw
         //=Retrieve raw
-        contentState = convertFromRaw(rawState);
+        //contentState = convertFromRaw(rawState);
         let html = stateToHTML(contentState);
         //=Display on page
         console.log(html);

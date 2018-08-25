@@ -14,7 +14,7 @@ class NewsList extends Component {
         items:[],
         start: this.props.start,
         end: this.props.end,
-        amount: this.props.load_amount,
+        amount: this.props.load_amount
     }
 
     componentDidMount() {
@@ -101,7 +101,7 @@ class NewsList extends Component {
                                     <div className={style.imageCard_wrapper}>
                                         <div className={style.imageCard_left}
                                             style={{
-                                                background: `url(/images/articles/${item.image})`
+                                                background: `url(${item.image})`
                                             }}
                                         >
                                             <div></div>

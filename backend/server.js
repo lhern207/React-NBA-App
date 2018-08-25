@@ -1,13 +1,14 @@
 //Importing core dependencies
 const express = require('express');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose').set('debug', true);
 
 //Importing Schema Models
 const {Article} = require('./models/article');
 const {Video} = require('./models/video');
 const {Team} = require('./models/team');
 const {User} = require('./models/user');
-const {Image} = require('./models/image');
+const {articleImage} = require('./models/articleImage');
+const {videoImage} = require('./models/videoImage');
 
 //Importing Middleware
 const bodyParser = require('body-parser');
@@ -36,44 +37,82 @@ app.use(cookieParser());
 
 //Routes//
 app.get('/articles', (req,res)=>{
-    req.query_action(Article, (err,result)=>{
-        if(err){
-            res.status(404).send("Unable to retrieve content");
+    req.query_action(Article, (err,articles)=>{
+        if(err) return res.status(404).send("Unable to retrieve content");
+        //Resolve articles images in same request.Attach image to corresponding article object
+        //If query returns multiple articles
+        if(Array.isArray(articles)){
+            let requests = articles.map((article)=>{
+                return new Promise((resolve) => {
+                    articleImage.findById(article.image, (err, theImage)=>{
+                        if(err) return res.status(400).send(err);
+                        article.image = theImage.source;
+                        resolve(article);
+                    });
+                });
+            });
+            Promise.all(requests).then(m_articles=>res.status(200).send(m_articles));
         }
-        else{
-            res.status(200).send(result);
+        else {
+            //If query returns single article
+            //Keep in mind in this case articles is really just one article
+            articleImage.findById(articles.image, (err, image)=>{
+                if(err) return res.status(400).send(err);
+                articles.image = image.source;
+                res.status(200).send(articles);
+            });
         }
     });
 });
 
 //Needs Auth
 app.post('/articles', (req,res)=>{
-    Article.findByMaxId((err,article)=>{
-        if(err) return res.status(400).send(err);
+    //Store image
+    const imageSource = req.body.image;
+    let imageID = '';
+    let newID = null;
+    
+    //Store image
+    let imageStore = new Promise((resolve) => {
+        articleImage.storeImage(imageSource, (err,image)=>{
+            if(err) return res.status(400).send(err);
+            imageID = image._id;
+            resolve();
+        });
+    });
 
-        //This should be middleware
-        var date = new Date();
-        var day = date.getDate();
-        var month = date.getMonth()+1;
-        var year = date.getFullYear();
-        currentDate = month + '/' + day + '/' + year;
-        newID = article.id + 1;
+    //Find last article
+    let articleStore = new Promise((resolve) => {
+        Article.findByMaxId((err,article)=>{
+            if(err) return res.status(400).send(err);
+            newID = article.id + 1;
+            resolve();
+        });
+    });
 
+    //Get formatted date. This should be middleware
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth()+1;
+    const year = date.getFullYear();
+    const currentDate = month + '/' + day + '/' + year;
+
+    //Once all async actions are done. Create an article.
+    Promise.all([imageStore, articleStore]).then(()=>{
         const newArticle = new Article(
             {
                 id: newID,
                 team: req.body.team,
                 title: req.body.title,
-                image: req.body.image,
+                image: imageID,
                 body: req.body.body,
                 date: currentDate,
                 author: req.body.author,
                 tags: []
             }
         );
-        console.log(newArticle);
+
         newArticle.save((err,article)=>{
-            console.log(err,article);
             if(err) return res.status(400).send(err);
             res.status(200).send({"article":newID});
         });
@@ -85,34 +124,31 @@ app.post('/dashboard', (req,res)=>{
     res.status(200).send('ok');
 });
 
-app.get('/images', (req, res)=>{
-    Image.findById(req.query.id, (err, image)=>{
-        if(err) return res.status(400).send(err);
-        res.status(200).send({"image": image.source});
-    });
-});
-
-//Needs Auth
-app.post('/images', (req, res)=>{
-    imageSource = req.body.image;
-    const newImage = new Image(
-        {
-            source : imageSource
-        }
-    );
-    newImage.save((err,image)=>{
-        if(err) return res.status(400).send(err);
-        res.status(200).send({"image": image.source});
-    });
-});
-
 app.get('/videos', (req, res)=>{
-    req.query_action(Video, (err,result)=>{
-        if(err){
-            res.status(404).send("Unable to retrieve content");
+    req.query_action(Video, (err,videos)=>{
+        if(err) return res.status(404).send("Unable to retrieve content");
+        //Resolve articles images in same request.Attach image to corresponding article object
+        //If query returns multiple articles
+        if(Array.isArray(videos)){
+            let requests = videos.map((video, i)=>{
+                return new Promise((resolve) => {
+                    videoImage.findById(video.image, (err, theImage)=>{
+                        if(err) return res.status(400).send(err);
+                        video.image = theImage.source;
+                        resolve(video);
+                    });
+                });
+            });
+            Promise.all(requests).then(m_videos=>res.status(200).send(m_videos));
         }
-        else{
-            res.status(200).send(result);
+        else {
+            //If query returns single article
+            //Keep in mind in this case articles is really just one article
+            videoImage.findById(videos.image, (err, theImage)=>{
+                if(err) return res.status(400).send(err);
+                videos.image = theImage.source;
+                res.status(200).send(videos);
+            });
         }
     });
 });
@@ -192,12 +228,12 @@ app.post('/user/logout', (req,res)=> {
     let token = req.cookies.auth;
     User.findByToken(token, (err, user)=>{
         if(err || !user){
-            console.log("Logout - Token for deletion not found");
+            res.send(status).send("Logout - Token for deletion not found");
         }
         else{
             user.token = '';
             user.save((err,user)=>{
-                if(err) console.log("Logout - Token could not be deleted from database");
+                if(err) res.status(200).send("Logout - Token could not be deleted from database");
             });
         }
     });

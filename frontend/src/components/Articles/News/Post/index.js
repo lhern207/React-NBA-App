@@ -51,11 +51,14 @@ class NewsArticles extends Component {
                     </h1>
                     <div className={style.articleImage}
                         style={{
-                            background:`url('/images/articles/${article.image}')`
+                            background:`url(${article.image})`
                         }}
                     ></div>
-                    <div className={style.articleText}>
-                        {article.body}
+                    <div className={style.articleText}
+                        dangerouslySetInnerHTML={{
+                            __html: article.body
+                        }}
+                    >
                     </div>
                 </div>
             </div>

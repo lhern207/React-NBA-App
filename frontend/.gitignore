@@ -3,7 +3,8 @@
 firebase.js
 
 #configuration
-config.js
+#Lets allow config for now
+#config.js
 
 # dependencies
 /node_modules
