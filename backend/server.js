@@ -65,8 +65,7 @@ app.get('/articles', (req,res)=>{
     });
 });
 
-//Needs Auth
-app.post('/articles', (req,res)=>{
+app.post('/articles', auth, (req,res)=>{
     //Store image
     const imageSource = req.body.image;
     let imageID = '';
@@ -119,8 +118,7 @@ app.post('/articles', (req,res)=>{
     })
 });
 
-//Needs Auth
-app.post('/dashboard', (req,res)=>{
+app.post('/dashboard', auth, (req,res)=>{
     res.status(200).send('ok');
 });
 

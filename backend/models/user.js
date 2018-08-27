@@ -76,8 +76,6 @@ userSchema.statics.findByToken = function(token, cb){
     const User = this;
     jwt.verify(token, process.env.SUPER_SECRET, function(err, decoded){
         if(err) return cb(err);
-        console.log(decoded);
-        console.log(token);
         User.findOne({"_id": decoded, "token": token}, function(err,user){
             //This 'user' is a document instance returned by findOne()
             if(err) return cb(err);
