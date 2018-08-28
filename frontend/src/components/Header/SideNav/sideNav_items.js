@@ -75,11 +75,13 @@ const SideNavItems = (props) => {
                 template = (
                     <div key={i} 
                         className={item.type}
+                        style={{
+                            cursor:'pointer'
+                        }}
                         onClick={Logout}
                         >
                         <FontAwesome name={item.icon}/>
                         {item.text}
-                        
                     </div>
                 )
             }

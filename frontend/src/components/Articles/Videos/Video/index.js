@@ -14,7 +14,7 @@ class VideosArticle extends Component {
         related: []
     }
 
-    componentWillMount() {
+    componentDidMount() {
         axios.get(`${BACKEND_API}/videos?id=${this.props.match.params.id}`).then(
             response => {
                 const article = response.data;
@@ -56,8 +56,8 @@ class VideosArticle extends Component {
     }
 
     render() {
-        const article = this.state.article;
-        const team = this.state.team;
+        let article = this.state.article;
+        let team = this.state.team;
 
         return (
             <div>

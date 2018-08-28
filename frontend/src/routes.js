@@ -19,7 +19,10 @@ const Routes = () => {
                 <Route path="/" exact component={Home}/>
                 <Route path="/news" exact component={News}/>
                 <Route path="/articles/:id" exact component={NewsArticle}/>
-                <Route path="/videos/:id" exact component={VideosArticle}/>
+                <Route path="/videos/:id" exact render={(props) => (
+                    <VideosArticle key={props.match.params.id} {...props} />
+                    )}
+                />
                 <Route path="/videos" exact component={Videos}/>
                 <RestrictedRoute path="/sign-in" exact component={SignIn}/>
                 <PrivateRoute path="/dashboard" exact component={Dashboard}/>

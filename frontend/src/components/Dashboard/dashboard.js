@@ -89,7 +89,7 @@ class Dashboard extends Component {
             });
         })
         .catch(e=>{
-            console.log(e);
+            throw e;
         });
     }
 
@@ -162,8 +162,6 @@ class Dashboard extends Component {
             }
         }
 
-        console.log(dataToSubmit);
-
         if(formIsValid){
             this.setState({
                 loading: true,
@@ -212,7 +210,6 @@ class Dashboard extends Component {
         //contentState = convertFromRaw(rawState);
         let html = stateToHTML(contentState);
         //=Display on page
-        console.log(html);
 
         this.updateForm({id:'body'}, html);
 
